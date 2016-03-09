@@ -19,12 +19,16 @@
 package memobird
 
 import (
-//"fmt"
+	"fmt"
+	"strings"
+	"time"
 )
 
 //===================================================================
 // Public APIs
 //===================================================================
+
+const API_URL string = "http://open.memobird.cn/"
 
 type RestApi struct {
 	appKey string
@@ -35,12 +39,33 @@ func NewRestApi(appKey string) *RestApi {
 	return &RestApi{appKey: appKey, devId: ""}
 }
 
+/*
+func (this *RestApi) SetUserBind(userId, devId string) Result {
+	prefix := API_URL + "home/setuserbind"
+
+}
+*/
+
+func (this *RestApi) PrintPaper(content, devId string) Result {
+	fmt.Println(this.getPrefix("/home/printpaper"))
+	return Result{}
+}
+
+/*
+func (this *RestApi) GetPrintStatus(contentId string) Result {
+	prefix := API_URL + "home/getprintstatus"
+}
+*/
+
 //===================================================================
 // Private
 //===================================================================
 
-func (this *RestApi) SetUserBind(userId, devId string) Result {}
-
-func (this *RestApi) PrintPaper(content, devId string) Result {}
-
-func (this *RestApi) GetPrintStatus(contentId string) Result {}
+func (this *RestApi) getPrefix(subUrl string) string {
+	subUrl = strings.Trim(subUrl, "/")
+	t := time.Now()
+	timestamp := t.Format("2006-01-02") + "%20" + t.Format("15:04:05")
+	return fmt.Sprintf(
+		API_URL+subUrl+"?ak=%s&timestamp=%s",
+		this.appKey, timestamp)
+}
