@@ -28,8 +28,8 @@ import (
 //===================================================================
 
 func TestRestApiPrintPaper(t *testing.T) {
-	rest := NewRestApi("apikey")
-	fmt.Println(rest.PrintPaper("xxxx", "ddddd"))
+	rest := NewRestApi("appkey")
+	fmt.Println(rest.PrintPaper("devid", Text("我的名字是Menglong TAN")))
 }
 
 //===================================================================

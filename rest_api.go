@@ -19,7 +19,11 @@
 package memobird
 
 import (
+	"encoding/base64"
 	"fmt"
+	"github.com/doumadou/mahonia"
+	"io/ioutil"
+	"net/http"
 	"strings"
 	"time"
 )
@@ -39,6 +43,15 @@ func NewRestApi(appKey string) *RestApi {
 	return &RestApi{appKey: appKey, devId: ""}
 }
 
+func Text(text string) string {
+	enc := mahonia.NewEncoder("gbk")
+	if ret, ok := enc.ConvertStringOK(text); ok {
+		return "T:" + base64.StdEncoding.EncodeToString([]byte(ret))
+	} else {
+		panic(ok)
+	}
+}
+
 /*
 func (this *RestApi) SetUserBind(userId, devId string) Result {
 	prefix := API_URL + "home/setuserbind"
@@ -46,8 +59,16 @@ func (this *RestApi) SetUserBind(userId, devId string) Result {
 }
 */
 
-func (this *RestApi) PrintPaper(content, devId string) Result {
-	fmt.Println(this.getPrefix("/home/printpaper"))
+func (this *RestApi) PrintPaper(devId, content string) Result {
+	url := this.getPrefix("/home/printpaper") +
+		"&memobirdID=" + devId +
+		"&printcontent=" + content
+	fmt.Println(url)
+	if body, err := this.get(url); err != nil {
+		panic(err)
+	} else {
+		fmt.Println(body)
+	}
 	return Result{}
 }
 
@@ -68,4 +89,14 @@ func (this *RestApi) getPrefix(subUrl string) string {
 	return fmt.Sprintf(
 		API_URL+subUrl+"?ak=%s&timestamp=%s",
 		this.appKey, timestamp)
+}
+
+func (this *RestApi) get(url string) ([]byte, error) {
+	resp, err := http.Get(url)
+	if err != nil {
+		return []byte{}, err
+	}
+	defer resp.Body.Close()
+	body, err := ioutil.ReadAll(resp.Body)
+	return body, nil
 }
